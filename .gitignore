@@ -1,0 +1,63 @@
+# Project things we want to ignore
+/target/
+**/nbproject/private/
+**/nbproject/Makefile-*.mk
+**/nbproject/Package-*.bash
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+local.properties
+.settings/
+.loadpath
+.recommenders
+.metadata
+bin/
+tmp/
+*.tmp
+.target
+**/*.timestamp
+
+
+# macOS crap
+.DS_Store
+.AppleDouble
+.LSOverride
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows crap
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+$RECYCLE.BIN
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+*.pif
+
+# Linux stuff
+[._]sw[a-p]
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+
+
