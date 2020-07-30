@@ -5,7 +5,7 @@ import java.util.concurrent.Semaphore;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.prowl.pirotator.utils.Hardware;
+import org.prowl.pirotator.hardware.Hardware;
 
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.spi.SpiDevice;
@@ -14,7 +14,7 @@ public class MCP3008 {
 
    private Log                  LOG     = LogFactory.getLog("MCP3008");
 
-   public SpiDevice             spi     = Hardware.INSTANCE.getSPI();
+   private SpiDevice             spi     = Hardware.INSTANCE.getSPI();
    private Semaphore            spiLock = Hardware.INSTANCE.getSPILock();
 
    private GpioPinDigitalOutput gpioSS;

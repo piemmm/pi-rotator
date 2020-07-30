@@ -2,7 +2,7 @@ package org.prowl.pirotator.hardware.lcd;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.prowl.pirotator.utils.Hardware;
+import org.prowl.pirotator.hardware.Hardware;
 
 import com.pi4j.io.i2c.I2CDevice;
 

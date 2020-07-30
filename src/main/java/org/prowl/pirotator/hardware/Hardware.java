@@ -1,4 +1,4 @@
-package org.prowl.pirotator.utils;
+package org.prowl.pirotator.hardware;
 
 import java.io.IOException;
 import java.util.concurrent.Semaphore;

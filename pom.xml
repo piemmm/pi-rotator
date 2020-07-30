@@ -99,14 +99,7 @@
 			<version>0.11.0</version>
 		</dependency>
 
-		<!-- Our modified (and unit tested) aprslib -->
-		<dependency>
-			<groupId>org.prowl</groupId>
-			<artifactId>aprslib</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-			<!-- scope>system</scope> <systemPath>${project.basedir}/lib/aprslib-1.0.0-SNAPSHOT-jar-with-dependencies.jar</systemPath -->
-		</dependency>
-
+		 
 
 	</dependencies>
 

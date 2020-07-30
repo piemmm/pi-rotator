@@ -13,16 +13,15 @@ import com.pi4j.io.gpio.RaspiPin;
 public class StatusLeds {
 
    private GpioController       gpio;
-   private Pin                  message  = RaspiPin.GPIO_23;
-   private Pin                  link = RaspiPin.GPIO_22;
-   private Pin                  gps      = RaspiPin.GPIO_26;
-   private Pin                  trx      = RaspiPin.GPIO_21;
+   private Pin                  message = RaspiPin.GPIO_23;
+   private Pin                  link    = RaspiPin.GPIO_22;
+   private Pin                  gps     = RaspiPin.GPIO_26;
+   private Pin                  trx     = RaspiPin.GPIO_21;
 
    private GpioPinDigitalOutput gpioMessage;
    private GpioPinDigitalOutput gpioLink;
    private GpioPinDigitalOutput gpioGPS;
    private GpioPinDigitalOutput gpioTRX;
-   
 
    public StatusLeds() {
       init();
@@ -43,26 +42,25 @@ public class StatusLeds {
 
       gpioTRX = gpio.provisionDigitalOutputPin(trx, PinState.LOW);
       gpioTRX.setShutdownOptions(true, PinState.LOW);
-      
+
    }
 
    public void setLink(boolean on) {
       if (on) {
          gpioLink.high();
-      } else { 
+      } else {
          gpioLink.low();
       }
    }
-   
+
    public void pulseGPS(long time) {
       gpioGPS.pulse(time);
    }
-   
+
    public void pulseTRX(long time) {
       gpioTRX.pulse(time);
    }
-   
-   
+
    public void setMessageBlink(boolean shouldBlink, long blinkRate) {
       if (shouldBlink) {
          gpioMessage.blink(blinkRate);
@@ -70,6 +68,5 @@ public class StatusLeds {
          gpioMessage.low();
       }
    }
-   
-   
+
 }
