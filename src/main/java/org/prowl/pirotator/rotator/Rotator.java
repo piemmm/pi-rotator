@@ -1,10 +1,13 @@
 package org.prowl.pirotator.rotator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.prowl.pirotator.PiRotator;
 import org.prowl.pirotator.eventbus.ServerBus;
 import org.prowl.pirotator.eventbus.events.RotateRequest;
 import org.prowl.pirotator.hardware.Hardware;
 import org.prowl.pirotator.hardware.adc.MCP3008;
+import org.prowl.pirotator.utils.EWMAFilter;
 
 import com.google.common.eventbus.Subscribe;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
@@ -18,10 +21,18 @@ public enum Rotator {
 
    INSTANCE;
 
+   private Log                 LOG        = LogFactory.getLog("Rotator");
+
    private static final double MAX_OFFSET = 1.7;
 
    private RotateRequest       currentRequest;
    private RotateThread        rotateThread;
+
+   private float               azimuth    = 0;
+   private float               elevation  = 0;
+   
+   private EWMAFilter          aEmF       = new EWMAFilter(0.04f);
+   private EWMAFilter          eEmF       = new EWMAFilter(0.04f);
 
    private Rotator() {
       init();
@@ -30,6 +41,30 @@ public enum Rotator {
    public void init() {
       rotateThread = new RotateThread();
       rotateThread.start();
+
+      Thread thread = new Thread() {
+         public void run() {
+            while (true) {
+               try {
+                  Thread.sleep(10);
+               } catch (InterruptedException e) {
+               }
+
+               float ele = (float) (180d / 900d) * PiRotator.INSTANCE.getMCP().readADCChannel(1);
+               float azi = (float) (450d / 900d) * PiRotator.INSTANCE.getMCP().readADCChannel(0);
+
+               float eleF = eEmF.addPoint(ele);
+               float aziF = aEmF.addPoint(azi);
+
+               elevation = eleF;
+               azimuth = aziF;
+
+            }
+         }
+      };
+
+      thread.start();
+
       ServerBus.INSTANCE.register(this);
 
    }
@@ -86,8 +121,6 @@ public enum Rotator {
             if (currentRequest != null) {
                ensureRotated(currentRequest);
             }
-            
-            
 
          }
 
@@ -96,12 +129,9 @@ public enum Rotator {
       public void ensureRotated(RotateRequest request) {
 
          MCP3008 mcp = PiRotator.INSTANCE.getMCP();
-         double azimuth = mcp.getAzimuth();
-         double elevation = mcp.getElevation();
          double reqAz = request.getAzimuth();
          double reqEl = request.getElevation();
 
-         
          if (azimuth - reqAz > MAX_OFFSET) {
             azCCW.high();
             azCW.low();
@@ -133,6 +163,14 @@ public enum Rotator {
          elCW.low();
       }
 
+   }
+
+   public double getAzimuth() {
+      return azimuth;
+   }
+
+   public double getElevation() {
+      return elevation;
    }
 
 }
