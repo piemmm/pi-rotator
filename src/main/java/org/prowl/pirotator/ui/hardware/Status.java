@@ -4,12 +4,14 @@ import java.text.NumberFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.prowl.pirotator.PiRotator;
 import org.prowl.pirotator.eventbus.ServerBus;
 import org.prowl.pirotator.hardware.lcd.US2066;
 import org.prowl.pirotator.hardware.leds.StatusLeds;
+import org.prowl.pirotator.rotator.Rotator;
 import org.prowl.pirotator.utils.EWMAFilter;
 import org.prowl.pirotator.utils.Tools;
 
@@ -35,7 +37,10 @@ public class Status {
       rssi2m = new EWMAFilter(0.2f);
       rssi70cm = new EWMAFilter(0.2f);
       nf = NumberFormat.getInstance();
-      nf.setMaximumFractionDigits(1);
+      nf.setMaximumFractionDigits(0);
+      nf.setMinimumFractionDigits(0);
+      nf.setMaximumIntegerDigits(3);
+      nf.setMinimumIntegerDigits(3);
       try {
          lcd = new US2066();
          leds = new StatusLeds();
@@ -58,14 +63,7 @@ public class Status {
          public void run() {
 
             try {
-               switch (screen % 4) {
-                  case 0:
-                     screen0();
-                     break;
-                  case 1:
-                     screen1();
-                     break;
-               }
+               screen0();
             } catch (Throwable e) {
                LOG.debug(e.getMessage(), e);
             }
@@ -73,10 +71,11 @@ public class Status {
             screen++;
 
          }
-      }, 2000, 5000);
+      }, 2000, 50);
 
       // Register our interest in events.
       ServerBus.INSTANCE.register(this);
+
    }
 
    public void stop() {
@@ -86,21 +85,13 @@ public class Status {
 
    public void screen0() {
 
-      String topString = "Idle";
-      String bottomString = "Stationary";
+      String satName = StringUtils.defaultIfBlank(Rotator.INSTANCE.getCurrentTracking(), " -");
+
+      String topString = "El: " + nf.format(PiRotator.INSTANCE.getMCP().getElevation()) +"   Az: " + nf.format(PiRotator.INSTANCE.getMCP().getAzimuth());
+      String bottomString =  "Sat: " + satName;
 
       setText(topString.toString(), bottomString.toString());
    }
- 
-
-   public void screen1() {
-      String topString = "Status: OK";
-      String bottomString = "IP: -";
-      bottomString = Tools.getDefaultOutboundIP().getHostAddress();
-
-      setText(topString.toString(), bottomString.toString());
-   }
- 
 
    public void setText(String line1, String line2) {
       lcd.writeText(line1, line2);
@@ -117,5 +108,5 @@ public class Status {
    public void setLink(boolean on) {
       leds.setLink(on);
    }
- 
+
 }

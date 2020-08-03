@@ -64,7 +64,7 @@ public enum Hardware {
 
    private Hardware() {
       try {
-         spi = SpiFactory.getInstance(SpiChannel.CS0, 2_000_000, SpiMode.MODE_0);
+         spi = SpiFactory.getInstance(SpiChannel.CS0, 1_000_000, SpiMode.MODE_0);
 
          gpio = GpioFactory.getInstance();
 

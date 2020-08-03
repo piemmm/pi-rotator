@@ -2,6 +2,8 @@ package org.prowl.pirotator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.prowl.pirotator.api.macdoppler.MacDoppler;
+import org.prowl.pirotator.api.rotctld.RotCtlD;
 import org.prowl.pirotator.config.Config;
 import org.prowl.pirotator.hardware.adc.MCP3008;
 import org.prowl.pirotator.ui.UI;
@@ -33,6 +35,8 @@ public enum PiRotator {
    private UI                 ui;
    private String             myCall;
    private MCP3008            mcp3008;
+   private MacDoppler        macDoppler;
+   private RotCtlD   rotCtlD;
 
    PiRotator() {
    }
@@ -42,10 +46,14 @@ public enum PiRotator {
       try {
          // Load configuration and initialise everything needed.
          configuration = new Config();
-         
+
          // Init hardware
          mcp3008 = new MCP3008();
-         
+
+         // UDPListener for rotator requests
+         macDoppler = new MacDoppler();
+         rotCtlD = new RotCtlD();
+
          // Init status objects
          status = new Status();
 
@@ -90,6 +98,10 @@ public enum PiRotator {
 
    public String getMyCall() {
       return myCall;
+   }
+
+   public MCP3008 getMCP() {
+      return mcp3008;
    }
 
 }

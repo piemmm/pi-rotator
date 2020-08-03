@@ -6,18 +6,25 @@ import java.util.concurrent.Semaphore;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.prowl.pirotator.hardware.Hardware;
+import org.prowl.pirotator.utils.EWMAFilter;
 
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.spi.SpiDevice;
 
 public class MCP3008 {
 
-   private Log                  LOG     = LogFactory.getLog("MCP3008");
+   private Log                  LOG       = LogFactory.getLog("MCP3008");
 
-   private SpiDevice             spi     = Hardware.INSTANCE.getSPI();
-   private Semaphore            spiLock = Hardware.INSTANCE.getSPILock();
+   private SpiDevice            spi       = Hardware.INSTANCE.getSPI();
+   private Semaphore            spiLock   = Hardware.INSTANCE.getSPILock();
 
    private GpioPinDigitalOutput gpioSS;
+
+   private EWMAFilter           aEmF      = new EWMAFilter(0.05f);
+   private EWMAFilter           eEmF      = new EWMAFilter(0.05f);
+
+   private double               azimuth   = 0;
+   private double               elevation = 0;
 
    public MCP3008() {
       init();
@@ -25,40 +32,34 @@ public class MCP3008 {
 
    public void init() {
       gpioSS = Hardware.INSTANCE.getGpioSS0();
-      
-      
-      Thread thread = new Thread() {
-       public void run() {
-          LOG.info("ADC monitor starting");
-          while (true) {
-             try {
-                Thread.sleep(1000);
-             } catch (InterruptedException e) {
-             }
-             
-             
-             System.out.println("Reg:" + readRegister(0)+"  "+readRegister(1)+"  "+readRegister(2)+"  "+readRegister(3));
-             
-//             gpioElCW.high();
-//             gpioElCCW.high();
-//             gpioAzCW.high();
-//             gpioAzCCW.high();
-//             try {
-//                Thread.sleep(1000);
-//             } catch (InterruptedException e) {
-//             }
-//             gpioElCW.low();
-//             gpioElCCW.low();
-//             gpioAzCW.low();
-//             gpioAzCCW.low();
-          }
-       }
-    };
 
-    thread.start();
+      Thread thread = new Thread() {
+         public void run() {
+            LOG.info("ADC monitor starting");
+            while (true) {
+               try {
+                  Thread.sleep(10);
+               } catch (InterruptedException e) {
+               }
+
+               float ele = (float) (180d / 900d) * ((((readRegister(9 << 4)[1]) & 0xFF) << 8) + ((readRegister(9 << 4)[2]) & 0xFF));
+               float azi = (float) (450d / 900d) * ((((readRegister(8 << 4)[1]) & 0xFF) << 8) + ((readRegister(8 << 4)[2]) & 0xFF));
+
+               float eleF = eEmF.addPoint(ele);
+               float aziF = aEmF.addPoint(azi);
+
+               elevation = eleF;
+
+               azimuth = aziF;
+
+            }
+         }
+      };
+
+      thread.start();
 
    }
-   
+
    /**
     * Enable the CS for the device
     */
@@ -79,17 +80,18 @@ public class MCP3008 {
     * @param addr
     * @return
     */
-   private int readRegister(int addr) {
-      int res = 0x00;
+   private byte[] readRegister(int addr) {
+      byte[] result = null;
       try {
          spiLock.acquire();
-         byte spibuf[] = new byte[2];
-         spibuf[0] = (byte) (addr);
-         spibuf[1] = 0x00;
+         byte spibuf[] = new byte[3];
+         spibuf[0] = 1;
+         spibuf[1] = (byte) (addr);
+         spibuf[2] = 0x00;
          disableSS();
          try {
-            byte[] result = spi.write(spibuf);
-            res = result[1] & 0xFF;
+            result = spi.write(spibuf);
+            // res = result[1] & 0xFF;
          } catch (IOException e) {
             LOG.error(e.getMessage(), e);
          }
@@ -97,7 +99,7 @@ public class MCP3008 {
          spiLock.release();
       } catch (InterruptedException e) {
       }
-      return res;
+      return result;
    }
 
    /**
@@ -123,6 +125,14 @@ public class MCP3008 {
       } catch (InterruptedException e) {
       }
 
+   }
+
+   public double getAzimuth() {
+      return azimuth;
+   }
+
+   public double getElevation() {
+      return elevation;
    }
 
 }
