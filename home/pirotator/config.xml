@@ -11,6 +11,7 @@
 		<maxADCReading>900</maxADCReading>
 
 		<parking>
+			<enabled>false</enabled>
 			<inactivityTimeoutSeconds>600</inactivityTimeoutSeconds>
 			<azimuth>310</azimuth>
 			<elevation>0</elevation>
@@ -40,7 +41,7 @@
 	<!-- GPS controller -->
 	<gps>
 		<port>/dev/ttyS0</port>
-	    <udpBroadcastPort>9932</udpBroadcastPort>
+		<udpBroadcastPort>9932</udpBroadcastPort>
 	</gps>
 
 	<ui>
