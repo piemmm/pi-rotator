@@ -54,6 +54,8 @@ public class GPS {
 
    public void start() throws IOException {
 
+      LOG.info("GPS Listener starting");
+      
       serial = SerialFactory.createInstance();
 
       // create serial config object

@@ -10,25 +10,26 @@ import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.prowl.pirotator.PiRotator;
+import org.prowl.pirotator.controllers.Controller;
 import org.prowl.pirotator.eventbus.ServerBus;
 import org.prowl.pirotator.eventbus.events.RotateRequest;
-import org.prowl.pirotator.rotator.Rotator;
 
 
 /**
  * Rotctld compatible controller - this still isn't working quite right, needs more investigation!
  */
-public class RotCtlD {
+public class RotCtlD implements Controller {
 
    private Log          LOG    = LogFactory.getLog("RotCrlD");
 
    private ClientThread client = null;
    private TCPListener  tcpListener;
 
-   public RotCtlD() {
+   public RotCtlD(HierarchicalConfiguration config) {
 
    }
    
@@ -38,6 +39,10 @@ public class RotCtlD {
    
    public void stop() {
       
+   }
+   
+   public String getName() {
+      return "RotCtlD";
    }
 
 

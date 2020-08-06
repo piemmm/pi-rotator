@@ -8,6 +8,7 @@ import java.util.Locale;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.prowl.pirotator.controllers.Controller;
 import org.prowl.pirotator.eventbus.ServerBus;
 import org.prowl.pirotator.eventbus.events.RotateRequest;
 
@@ -17,7 +18,7 @@ import org.prowl.pirotator.eventbus.events.RotateRequest;
  * 
  * Sample data in packet: [AzEl Rotor Report:Azimuth:350.00, Elevation:0.00]
  */
-public class MacDoppler {
+public class MacDoppler implements Controller {
 
    private Log           LOG          = LogFactory.getLog("MacDoppler");
 
@@ -38,6 +39,11 @@ public class MacDoppler {
    public void stop() {
       
    }
+   
+   public String getName() {
+      return "MacDoppler";
+   }
+
 
    public void init() {
       running = true;

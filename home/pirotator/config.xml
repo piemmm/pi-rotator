@@ -29,7 +29,7 @@
 
 	</rotator>
 
-	<!-- Macdoppler compatible listener -->
+	<!-- Macdoppler, rotctld(etc) compatible listener -->
 	<controllers>
 
 		<controller>
@@ -38,7 +38,8 @@
 		</controller>
 
 		<controller>
-		<class>org.prowl.pirotator.controllers.rotctld.RotCtlD</class></controller>
+			<class>org.prowl.pirotator.controllers.rotctld.RotCtlD</class>
+		</controller>
 
 	</controllers>
 
@@ -46,6 +47,11 @@
 	<thermalManagement>
 		<maxTemperatureCelcius>75</maxTemperatureCelcius>
 	</thermalManagement>
+
+	<!-- GPS controller -->
+	<gps>
+		<port>/dev/ttyS0</port>
+	</gps>
 
 	<ui>
 		<!-- Enable the ANSI terminal interface -->

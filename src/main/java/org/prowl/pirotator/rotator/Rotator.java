@@ -48,6 +48,7 @@ public class Rotator {
    }
 
    public void init() {
+      LOG.info("Rotator hardware controller starting");
       rotateThread = new RotateThread();
       rotateThread.start();
 

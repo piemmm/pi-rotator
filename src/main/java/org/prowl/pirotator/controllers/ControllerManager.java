@@ -27,11 +27,11 @@ public class ControllerManager {
     */
    public void parseConfiguration() {
       // Get a list of controller from the config file
-      List<HierarchicalConfiguration> cxs = configuration.configurationsAt("connector");
+      List<HierarchicalConfiguration> cxs = configuration.configurationsAt("controller");
 
       // Go create and configure each one.
       for (HierarchicalConfiguration c : cxs) {
-         String className = c.getString("type");
+         String className = c.getString("class");
          try {
             Controller con = (Controller) Class.forName(className).getConstructor(HierarchicalConfiguration.class).newInstance(c);
             controllers.add(con);

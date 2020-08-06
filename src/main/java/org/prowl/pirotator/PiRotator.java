@@ -63,12 +63,14 @@ public enum PiRotator {
 
          // Start compatible rotator controller apis (macdoppler, rotctld, etc)
          controllerManager = new ControllerManager(configuration.getConfig("controllers"));
+         controllerManager.start();
 
          // Init status objects
          status = new Status();
 
          // Init GPS device
          gps = new GPS(configuration.getConfig("gps"));
+         gps.start();
 
          // Init User interfaces
          ui = new UI(configuration.getConfig("ui"));
