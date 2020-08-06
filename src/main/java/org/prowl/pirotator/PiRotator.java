@@ -12,7 +12,9 @@ import org.prowl.pirotator.ui.UI;
 import org.prowl.pirotator.ui.hardware.Status;
 
 /**
- * PiRotator starting class
+ * PiRotator main starting class
+ * 
+ * The source for this project is CC-BY-SA
  * 
  * Loads the configuration and starts the node
  */
@@ -72,7 +74,7 @@ public enum PiRotator {
          gps = new GPS(configuration.getConfig("gps"));
          gps.start();
 
-         // Init User interfaces
+         // Init User interfaces (to-do)
          ui = new UI(configuration.getConfig("ui"));
 
          // Start node services
