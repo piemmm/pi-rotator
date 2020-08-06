@@ -33,9 +33,12 @@
 	<controllers>
 
 		<controller>
-			<class>org.prowl.pirotator.api.macdoppler.MacDoppler</class>
+			<class>org.prowl.pirotator.controllers.macdoppler.MacDoppler</class>
 			<listenPort>9932</listenPort>
 		</controller>
+
+		<controller>
+		<class>org.prowl.pirotator.controllers.rotctld.RotCtlD</class></controller>
 
 	</controllers>
 

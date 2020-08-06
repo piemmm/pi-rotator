@@ -17,6 +17,10 @@ import org.prowl.pirotator.eventbus.ServerBus;
 import org.prowl.pirotator.eventbus.events.RotateRequest;
 import org.prowl.pirotator.rotator.Rotator;
 
+
+/**
+ * Rotctld compatible controller - this still isn't working quite right, needs more investigation!
+ */
 public class RotCtlD {
 
    private Log          LOG    = LogFactory.getLog("RotCrlD");
@@ -130,7 +134,6 @@ public class RotCtlD {
       public void getPos() throws IOException {
          write(""+((int)PiRotator.INSTANCE.getRotator().getAzimuth()));
          write(""+((int)PiRotator.INSTANCE.getRotator().getElevation()));
-       //  write("RPRT 0");
       }
 
       public void setPos(String command) throws IOException {
@@ -138,6 +141,7 @@ public class RotCtlD {
          Double azimuth = Double.parseDouble(parts[1]);
          Double elevation = Double.parseDouble(parts[2]);
 
+         // Send the request off to our rotator
          RotateRequest request = new RotateRequest(elevation, azimuth, "(RotCtlD)");
          ServerBus.INSTANCE.post(request);
          
