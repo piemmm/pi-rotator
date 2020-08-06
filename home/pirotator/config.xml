@@ -16,17 +16,10 @@
 
 	<!-- Rotator setup -->
 	<rotator>
-		<azimuth>
-			<maxDegrees>450</maxDegrees>
-			<minDegrees>0</minDegrees>
-			<adcMaxReading>900</adcMaxReading>
-		</azimuth>
 
-		<elevation>
-			<maxDegrees>180</maxDegrees>
-			<minDegrees>0</minDegrees>
-			<adcMaxReading>900</adcMaxReading>
-		</elevation>
+		<maxElevationDegrees>180</maxElevationDegrees>
+		<maxAzimuthDegrees>450</maxAzimuthDegrees>
+		<maxADCReading>900</maxADCReading>
 
 		<parking>
 			<inactivityTimeoutSeconds>600</inactivityTimeoutSeconds>
@@ -35,6 +28,21 @@
 		</parking>
 
 	</rotator>
+
+	<!-- Macdoppler compatible listener -->
+	<controllers>
+
+		<controller>
+			<class>org.prowl.pirotator.api.macdoppler.MacDoppler</class>
+			<listenPort>9932</listenPort>
+		</controller>
+
+	</controllers>
+
+	<!-- Cooling for pi -->
+	<thermalManagement>
+		<maxTemperatureCelcius>75</maxTemperatureCelcius>
+	</thermalManagement>
 
 	<ui>
 		<!-- Enable the ANSI terminal interface -->

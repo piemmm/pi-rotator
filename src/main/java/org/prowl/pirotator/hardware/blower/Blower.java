@@ -1,5 +1,6 @@
 package org.prowl.pirotator.hardware.blower;
 
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.prowl.pirotator.hardware.Hardware;
@@ -8,16 +9,18 @@ import com.pi4j.system.SystemInfo;
 
 public class Blower {
 
-   private Log    LOG          = LogFactory.getLog("Blower");
+   private Log    LOG                  = LogFactory.getLog("Blower");
 
-   private float  MAX_CPU_TEMP = 75f;
+   private static final float  MAX_CPU_TEMP_DEFAULT = 75f;
+   
+   private float  maxCPUTemp         = MAX_CPU_TEMP_DEFAULT;
 
    private Thread thermalMonitor;
 
-   public Blower() {
-
+   public Blower(HierarchicalConfiguration config) {
+      maxCPUTemp = config.getFloat("maxTemperatureCelcius", MAX_CPU_TEMP_DEFAULT);
    }
- 
+
    /**
     * Simple fan controller for making sure the pi cpu doesn't get too close to
     * it's thermal limits.
@@ -39,9 +42,9 @@ public class Blower {
                try {
                   float currentTemp = SystemInfo.getCpuTemperature();
                   LOG.debug("CPU thermals:" + currentTemp);
-                  if (currentTemp > MAX_CPU_TEMP) {
+                  if (currentTemp > maxCPUTemp) {
                      Hardware.INSTANCE.getFan().high();
-                  } else if (currentTemp < MAX_CPU_TEMP - 5) {
+                  } else if (currentTemp < maxCPUTemp - 5) {
                      Hardware.INSTANCE.getFan().low();
                   }
                } catch (UnsupportedOperationException e) {

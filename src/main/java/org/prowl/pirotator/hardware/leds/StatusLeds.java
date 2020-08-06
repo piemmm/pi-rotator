@@ -1,27 +1,26 @@
 package org.prowl.pirotator.hardware.leds;
 
-import com.pi4j.io.gpio.GpioController;
-import com.pi4j.io.gpio.GpioFactory;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import org.prowl.pirotator.eventbus.ServerBus;
+import org.prowl.pirotator.eventbus.events.RotateRequest;
+import org.prowl.pirotator.hardware.Hardware;
+
+import com.google.common.eventbus.Subscribe;
 import com.pi4j.io.gpio.GpioPinDigitalOutput;
-import com.pi4j.io.gpio.Pin;
-import com.pi4j.io.gpio.PinState;
-import com.pi4j.io.gpio.RaspiPin;
 
 /**
  * Simple class to allow the changing of status leds on the front panel
  */
 public class StatusLeds {
 
-   private GpioController       gpio;
-   private Pin                  message = RaspiPin.GPIO_23;
-   private Pin                  link    = RaspiPin.GPIO_22;
-   private Pin                  gps     = RaspiPin.GPIO_26;
-   private Pin                  trx     = RaspiPin.GPIO_21;
-
-   private GpioPinDigitalOutput gpioMessage;
-   private GpioPinDigitalOutput gpioLink;
+   private GpioPinDigitalOutput gpioFault;
+   private GpioPinDigitalOutput gpioNetwork;
+   private GpioPinDigitalOutput gpioMoving;
    private GpioPinDigitalOutput gpioGPS;
-   private GpioPinDigitalOutput gpioTRX;
+   
+   private RotateRequest currentRequest;
 
    public StatusLeds() {
       init();
@@ -29,43 +28,42 @@ public class StatusLeds {
 
    public void init() {
 
-      gpio = GpioFactory.getInstance();
+      gpioFault = Hardware.INSTANCE.getGpioFault();
+      gpioNetwork = Hardware.INSTANCE.getGpioNetwork();
+      gpioMoving = Hardware.INSTANCE.getGpioMoving();
+      gpioGPS = Hardware.INSTANCE.getGpioGPS();
+      ServerBus.INSTANCE.register(this);
 
-      gpioMessage = gpio.provisionDigitalOutputPin(message, PinState.LOW);
-      gpioMessage.setShutdownOptions(true, PinState.LOW);
-
-      gpioLink = gpio.provisionDigitalOutputPin(link, PinState.LOW);
-      gpioLink.setShutdownOptions(true, PinState.LOW);
-
-      gpioGPS = gpio.provisionDigitalOutputPin(gps, PinState.LOW);
-      gpioGPS.setShutdownOptions(true, PinState.LOW);
-
-      gpioTRX = gpio.provisionDigitalOutputPin(trx, PinState.LOW);
-      gpioTRX.setShutdownOptions(true, PinState.LOW);
+      Timer timer = new Timer();
+      timer.schedule(new TimerTask() { public void run() {
+         RotateRequest testRequest = currentRequest;
+         // Led on if there's a request and it's not expired.
+         gpioNetwork.setState(testRequest != null && !testRequest.isExpired());  
+      }}, 1000, 1000);
 
    }
 
-   public void setLink(boolean on) {
-      if (on) {
-         gpioLink.high();
-      } else {
-         gpioLink.low();
-      }
+
+   @Subscribe
+   public void setNetwork(RotateRequest request) {
+      currentRequest = request;
    }
+  
 
    public void pulseGPS(long time) {
       gpioGPS.pulse(time);
    }
 
-   public void pulseTRX(long time) {
-      gpioTRX.pulse(time);
+ 
+   public void setMoving(boolean on) {
+      gpioMoving.setState(on);
    }
 
-   public void setMessageBlink(boolean shouldBlink, long blinkRate) {
+   public void setFaultBlink(boolean shouldBlink, long blinkRate) {
       if (shouldBlink) {
-         gpioMessage.blink(blinkRate);
+         gpioFault.blink(blinkRate);
       } else {
-         gpioMessage.low();
+         gpioFault.low();
       }
    }
 

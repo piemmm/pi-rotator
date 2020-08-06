@@ -2,11 +2,12 @@ package org.prowl.pirotator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.prowl.pirotator.api.macdoppler.MacDoppler;
-import org.prowl.pirotator.api.rotctld.RotCtlD;
 import org.prowl.pirotator.config.Config;
+import org.prowl.pirotator.controllers.ControllerManager;
 import org.prowl.pirotator.hardware.adc.MCP3008;
 import org.prowl.pirotator.hardware.blower.Blower;
+import org.prowl.pirotator.hardware.gps.GPS;
+import org.prowl.pirotator.rotator.Rotator;
 import org.prowl.pirotator.ui.UI;
 import org.prowl.pirotator.ui.hardware.Status;
 
@@ -36,9 +37,10 @@ public enum PiRotator {
    private UI                 ui;
    private String             myCall;
    private MCP3008            mcp3008;
-   private MacDoppler         macDoppler;
-   private RotCtlD            rotCtlD;
    private Blower             blower;
+   private Rotator            rotator;
+   private ControllerManager  controllerManager;
+   private GPS                gps;
 
    PiRotator() {
    }
@@ -53,36 +55,26 @@ public enum PiRotator {
          mcp3008 = new MCP3008();
 
          // Thermal controller
-         blower = new Blower();
+         blower = new Blower(configuration.getConfig("thermalManagement"));
          blower.makeThermalMonitor();
-         
-         // UDPListener for rotator requests
-         macDoppler = new MacDoppler();
-         rotCtlD = new RotCtlD();
-         
+
+         // Rotator controller
+         rotator = new Rotator(configuration.getConfig("rotator"));
+
+         // Start compatible rotator controller apis (macdoppler, rotctld, etc)
+         controllerManager = new ControllerManager(configuration.getConfig("controllers"));
+
          // Init status objects
          status = new Status();
+
+         // Init GPS device
+         gps = new GPS(configuration.getConfig("gps"));
 
          // Init User interfaces
          ui = new UI(configuration.getConfig("ui"));
 
          // Start node services
          ui.start();
-
-         // All done
-         Thread t = new Thread() {
-            public void run() {
-               while (true) {
-                  try {
-                     Thread.sleep(1000);
-
-                  } catch (InterruptedException e) {
-                     e.printStackTrace();
-                  }
-               }
-            }
-         };
-         t.start();
 
       } catch (Throwable e) {
          LOG.error(e.getMessage(), e);
@@ -110,4 +102,9 @@ public enum PiRotator {
       return mcp3008;
    }
 
+   public Rotator getRotator() {
+      return rotator;
+   }
+   
+   
 }

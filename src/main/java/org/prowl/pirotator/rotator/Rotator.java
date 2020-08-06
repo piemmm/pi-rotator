@@ -1,5 +1,6 @@
 package org.prowl.pirotator.rotator;
 
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.prowl.pirotator.PiRotator;
@@ -17,24 +18,32 @@ import com.pi4j.wiringpi.Gpio;
  * Main Rotator logic class
  *
  */
-public enum Rotator {
+public class Rotator {
 
-   INSTANCE;
+   private Log                 LOG          = LogFactory.getLog("Rotator");
 
-   private Log                 LOG        = LogFactory.getLog("Rotator");
-
-   private static final double MAX_OFFSET = 1.7;
+   private static final double MAX_OFFSET   = 1.7;
 
    private RotateRequest       currentRequest;
    private RotateThread        rotateThread;
 
-   private float               azimuth    = 0;
-   private float               elevation  = 0;
-   
-   private EWMAFilter          aEmF       = new EWMAFilter(0.04f);
-   private EWMAFilter          eEmF       = new EWMAFilter(0.04f);
+   private float               azimuth      = 0;
+   private float               elevation    = 0;
 
-   private Rotator() {
+   private double              maxElevation = 180d;
+   private double              maxAzimuth   = 450d;
+
+   private double              maxADCValue  = 900d;
+
+   private EWMAFilter          aEmF         = new EWMAFilter(0.04f);
+   private EWMAFilter          eEmF         = new EWMAFilter(0.04f);
+
+   public Rotator(HierarchicalConfiguration config) {
+
+      maxElevation = config.getDouble("maxElevationDegrees", 180);
+      maxAzimuth = config.getDouble("maxAzimuthDegrees", 450);
+      maxADCValue = config.getDouble("maxADCReading", 900);
+      
       init();
    }
 
@@ -50,8 +59,8 @@ public enum Rotator {
                } catch (InterruptedException e) {
                }
 
-               float ele = (float) (180d / 900d) * PiRotator.INSTANCE.getMCP().readADCChannel(1);
-               float azi = (float) (450d / 900d) * PiRotator.INSTANCE.getMCP().readADCChannel(0);
+               float ele = (float) (maxElevation / maxADCValue) * PiRotator.INSTANCE.getMCP().readADCChannel(1);
+               float azi = (float) (maxAzimuth / maxADCValue) * PiRotator.INSTANCE.getMCP().readADCChannel(0);
 
                float eleF = eEmF.addPoint(ele);
                float aziF = aEmF.addPoint(azi);

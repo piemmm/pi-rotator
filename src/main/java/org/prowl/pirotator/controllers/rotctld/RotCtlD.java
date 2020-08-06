@@ -1,4 +1,4 @@
-package org.prowl.pirotator.api.rotctld;
+package org.prowl.pirotator.controllers.rotctld;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -25,8 +25,17 @@ public class RotCtlD {
    private TCPListener  tcpListener;
 
    public RotCtlD() {
+
+   }
+   
+   public void start() {
       init();
    }
+   
+   public void stop() {
+      
+   }
+
 
    public void init() {
       tcpListener = new TCPListener();
@@ -40,7 +49,6 @@ public class RotCtlD {
 
       public TCPListener() {
          super("RotCtlD tcp listener");
-
       }
 
       public void run() {
@@ -120,10 +128,9 @@ public class RotCtlD {
       }
 
       public void getPos() throws IOException {
-         write(""+((int)Rotator.INSTANCE.getAzimuth()));
-         write(""+((int)Rotator.INSTANCE.getElevation()));
+         write(""+((int)PiRotator.INSTANCE.getRotator().getAzimuth()));
+         write(""+((int)PiRotator.INSTANCE.getRotator().getElevation()));
        //  write("RPRT 0");
-
       }
 
       public void setPos(String command) throws IOException {

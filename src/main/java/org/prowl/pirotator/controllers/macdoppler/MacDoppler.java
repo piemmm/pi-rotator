@@ -1,10 +1,11 @@
-package org.prowl.pirotator.api.macdoppler;
+package org.prowl.pirotator.controllers.macdoppler;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.HashMap;
 import java.util.Locale;
 
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.prowl.pirotator.eventbus.ServerBus;
@@ -18,13 +19,24 @@ import org.prowl.pirotator.eventbus.events.RotateRequest;
  */
 public class MacDoppler {
 
-   private Log           LOG = LogFactory.getLog("MacDoppler");
+   private Log           LOG          = LogFactory.getLog("MacDoppler");
 
    private boolean       running;
    private ReceiveThread receiveThread;
 
-   public MacDoppler() {
+   private int           DEFAULT_PORT = 9932;
+   private int           listenPort   = DEFAULT_PORT;
+
+   public MacDoppler(HierarchicalConfiguration config) {
+      listenPort = config.getInt("listenPort", DEFAULT_PORT);
+   }
+   
+   public void start() {
       init();
+   }
+   
+   public void stop() {
+      
    }
 
    public void init() {
@@ -52,7 +64,7 @@ public class MacDoppler {
             }
 
             try {
-               udpListener = new DatagramSocket(9932); // Macdoppler port 9932 for broadcasts
+               udpListener = new DatagramSocket(listenPort); // Macdoppler port 9932 for broadcasts
 
                byte[] buffer = new byte[2048];
                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -60,7 +72,7 @@ public class MacDoppler {
                while (running) {
                   udpListener.receive(packet);
                   byte[] payload = packet.getData();
-                  String stringData = new String(payload,0,packet.getLength(), "ISO-8859-1");
+                  String stringData = new String(payload, 0, packet.getLength(), "ISO-8859-1");
 
                   System.out.println(stringData);
                   if (stringData.contains("[AzEl Rotor Report:")) {

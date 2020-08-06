@@ -85,9 +85,9 @@ public class Status {
 
    public void screen0() {
 
-      String satName = StringUtils.defaultIfBlank(Rotator.INSTANCE.getCurrentTracking(), " -");
+      String satName = StringUtils.defaultIfBlank(PiRotator.INSTANCE.getRotator().getCurrentTracking(), " -");
 
-      String topString = "El: " + nf.format(Rotator.INSTANCE.getElevation()) +"   Az: " + nf.format(Rotator.INSTANCE.getAzimuth());
+      String topString = "El: " + nf.format(PiRotator.INSTANCE.getRotator().getElevation()) +"   Az: " + nf.format(PiRotator.INSTANCE.getRotator().getAzimuth());
       String bottomString =  "Sat: " + satName;
 
       setText(topString.toString(), bottomString.toString());
@@ -100,13 +100,6 @@ public class Status {
    public void pulseGPS(long time) {
       leds.pulseGPS(time);
    }
-
-   public void setMessageBlink(boolean shouldBlink, long blinkRate) {
-      leds.setMessageBlink(shouldBlink, blinkRate);
-   }
-
-   public void setLink(boolean on) {
-      leds.setLink(on);
-   }
+ 
 
 }

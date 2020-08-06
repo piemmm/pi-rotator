@@ -46,7 +46,7 @@ public class MCP3008 {
    }
 
    public float readADCChannel(int channel) {
-      float value = (float) (450d / 900d) * ((((readRegister((8 + channel) << 4)[1]) & 0xFF) << 8) + ((readRegister((8 + channel) << 4)[2]) & 0xFF));
+      float value = (float) ((((readRegister((8 + channel) << 4)[1]) & 0xFF) << 8) + ((readRegister((8 + channel) << 4)[2]) & 0xFF));
       return value;
    }
 

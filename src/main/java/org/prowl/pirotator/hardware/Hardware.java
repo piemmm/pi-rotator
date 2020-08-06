@@ -51,7 +51,17 @@ public enum Hardware {
    private Pin                  az_ccw       = RaspiPin.GPIO_29;
 
    private Pin                  fan          = RaspiPin.GPIO_25;
-   
+
+   private Pin                  fault        = RaspiPin.GPIO_23;
+   private Pin                  network      = RaspiPin.GPIO_22;
+   private Pin                  moving       = RaspiPin.GPIO_26;
+   private Pin                  gps          = RaspiPin.GPIO_21;
+
+   private GpioPinDigitalOutput gpioFault;
+   private GpioPinDigitalOutput gpioNetwork;
+   private GpioPinDigitalOutput gpioMoving;
+   private GpioPinDigitalOutput gpioGPS;
+
    private GpioController       gpio;
    private GpioPinDigitalInput  gpioDio0;
    private GpioPinDigitalInput  gpioDio1;
@@ -113,7 +123,23 @@ public enum Hardware {
          gpioFan = gpio.provisionDigitalOutputPin(fan, PinState.HIGH);
          gpioFan.setShutdownOptions(true, PinState.HIGH); // Fan always on if no thermal monitor running
          gpioFan.high();
-         
+
+         // Fault redLED
+         gpioFault = gpio.provisionDigitalOutputPin(fault, PinState.LOW);
+         gpioFault.setShutdownOptions(true, PinState.LOW);
+
+         // Network led - active when an API sending rotate requests
+         gpioNetwork = gpio.provisionDigitalOutputPin(network, PinState.LOW);
+         gpioNetwork.setShutdownOptions(true, PinState.LOW);
+
+         // GPS - flashes when searching, solid when 3d Fixed
+         gpioGPS = gpio.provisionDigitalOutputPin(gps, PinState.LOW);
+         gpioGPS.setShutdownOptions(true, PinState.LOW);
+
+         // Moving LED - active when the rotator is being moved.
+         gpioMoving = gpio.provisionDigitalOutputPin(moving, PinState.LOW);
+         gpioMoving.setShutdownOptions(true, PinState.LOW);
+
          // Reset (default being reset until we're ready). This also is commoned with the
          // RF modules reset pin.
          gpioRst = gpio.provisionDigitalOutputPin(reset, PinState.HIGH);
@@ -165,7 +191,6 @@ public enum Hardware {
       } catch (InterruptedException e) {
       }
    }
- 
 
    public GpioPinDigitalOutput getGpioElCW() {
       return gpioElCW;
@@ -174,11 +199,12 @@ public enum Hardware {
    public GpioPinDigitalOutput getGpioElCCW() {
       return gpioElCCW;
    }
-  
+
    public GpioPinDigitalOutput getGpioAzCW() {
       return gpioAzCW;
    }
-    public GpioPinDigitalOutput getGpioAzCCW() {
+
+   public GpioPinDigitalOutput getGpioAzCCW() {
       return gpioAzCCW;
    }
 
@@ -186,5 +212,22 @@ public enum Hardware {
       return gpioFan;
    }
 
+   public GpioPinDigitalOutput getGpioNetwork() {
+      return gpioNetwork;
+   }
+
+   public GpioPinDigitalOutput getGpioMoving() {
+      return gpioMoving;
+   }
+
+   public GpioPinDigitalOutput getGpioGPS() {
+      return gpioGPS;
+   }
+
+   public GpioPinDigitalOutput getGpioFault() {
+      return gpioFault;
+   }
+
+   
    
 }
