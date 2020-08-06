@@ -1,0 +1,11 @@
+[Unit]
+Description=PiRotator antenna rotator
+
+[Service]
+Type=simple
+ExecStart=/bin/bash /home/pi/pirotator/start.sh
+User=pi
+Group=users
+
+[Install]
+WantedBy=multi-user.target
