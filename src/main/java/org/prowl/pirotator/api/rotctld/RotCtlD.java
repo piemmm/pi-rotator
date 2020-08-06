@@ -120,8 +120,8 @@ public class RotCtlD {
       }
 
       public void getPos() throws IOException {
-         write(""+((int)PiRotator.INSTANCE.getMCP().getAzimuth()));
-         write(""+((int)PiRotator.INSTANCE.getMCP().getElevation()));
+         write(""+((int)Rotator.INSTANCE.getAzimuth()));
+         write(""+((int)Rotator.INSTANCE.getElevation()));
        //  write("RPRT 0");
 
       }

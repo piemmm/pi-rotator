@@ -87,7 +87,7 @@ public class Status {
 
       String satName = StringUtils.defaultIfBlank(Rotator.INSTANCE.getCurrentTracking(), " -");
 
-      String topString = "El: " + nf.format(PiRotator.INSTANCE.getMCP().getElevation()) +"   Az: " + nf.format(PiRotator.INSTANCE.getMCP().getAzimuth());
+      String topString = "El: " + nf.format(Rotator.INSTANCE.getElevation()) +"   Az: " + nf.format(Rotator.INSTANCE.getAzimuth());
       String bottomString =  "Sat: " + satName;
 
       setText(topString.toString(), bottomString.toString());

@@ -6,6 +6,7 @@ import org.prowl.pirotator.api.macdoppler.MacDoppler;
 import org.prowl.pirotator.api.rotctld.RotCtlD;
 import org.prowl.pirotator.config.Config;
 import org.prowl.pirotator.hardware.adc.MCP3008;
+import org.prowl.pirotator.hardware.blower.Blower;
 import org.prowl.pirotator.ui.UI;
 import org.prowl.pirotator.ui.hardware.Status;
 
@@ -35,8 +36,9 @@ public enum PiRotator {
    private UI                 ui;
    private String             myCall;
    private MCP3008            mcp3008;
-   private MacDoppler        macDoppler;
-   private RotCtlD   rotCtlD;
+   private MacDoppler         macDoppler;
+   private RotCtlD            rotCtlD;
+   private Blower             blower;
 
    PiRotator() {
    }
@@ -50,10 +52,14 @@ public enum PiRotator {
          // Init hardware
          mcp3008 = new MCP3008();
 
+         // Thermal controller
+         blower = new Blower();
+         blower.makeThermalMonitor();
+         
          // UDPListener for rotator requests
          macDoppler = new MacDoppler();
          rotCtlD = new RotCtlD();
-
+         
          // Init status objects
          status = new Status();
 

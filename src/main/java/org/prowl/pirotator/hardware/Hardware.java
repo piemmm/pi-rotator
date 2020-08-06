@@ -50,12 +50,15 @@ public enum Hardware {
    private Pin                  az_cw        = RaspiPin.GPIO_28;
    private Pin                  az_ccw       = RaspiPin.GPIO_29;
 
+   private Pin                  fan          = RaspiPin.GPIO_25;
+   
    private GpioController       gpio;
    private GpioPinDigitalInput  gpioDio0;
    private GpioPinDigitalInput  gpioDio1;
    private GpioPinDigitalOutput gpioSS0;
    private GpioPinDigitalOutput gpioSS1;
    private GpioPinDigitalOutput gpioRst;
+   private GpioPinDigitalOutput gpioFan;
 
    private GpioPinDigitalOutput gpioElCW;
    private GpioPinDigitalOutput gpioElCCW;
@@ -106,6 +109,11 @@ public enum Hardware {
          gpioAzCCW.setShutdownOptions(true, PinState.LOW);
          gpioAzCCW.low();
 
+         // Fan/Blower
+         gpioFan = gpio.provisionDigitalOutputPin(fan, PinState.HIGH);
+         gpioFan.setShutdownOptions(true, PinState.HIGH); // Fan always on if no thermal monitor running
+         gpioFan.high();
+         
          // Reset (default being reset until we're ready). This also is commoned with the
          // RF modules reset pin.
          gpioRst = gpio.provisionDigitalOutputPin(reset, PinState.HIGH);
@@ -113,8 +121,6 @@ public enum Hardware {
                                                          // transmit
          gpioRst.low();
          resetAll();
-
-         makeThermalMonitor();
 
       } catch (IOException e) {
          LOG.error(e.getMessage(), e);
@@ -159,73 +165,26 @@ public enum Hardware {
       } catch (InterruptedException e) {
       }
    }
-
-   /**
-    * Simple fan controller for making sure the pi cpu doesn't get too close to
-    * it's thermal limits.
-    */
-   public void makeThermalMonitor() {
-//
-//      Thread thread = new Thread() {
-//         public void run() {
-//            LOG.info("Thermal monitor starting");
-//            while (true) {
-//               try {
-//                  Thread.sleep(1000);
-//               } catch (InterruptedException e) {
-//               }
-//               gpioElCW.high();
-//               gpioElCCW.high();
-//               gpioAzCW.high();
-//               gpioAzCCW.high();
-//               try {
-//                  Thread.sleep(1000);
-//               } catch (InterruptedException e) {
-//               }
-//               gpioElCW.low();
-//               gpioElCCW.low();
-//               gpioAzCW.low();
-//               gpioAzCCW.low();
-//            }
-//         }
-//      };
-//
-//      thread.start();
-
-   }
+ 
 
    public GpioPinDigitalOutput getGpioElCW() {
       return gpioElCW;
    }
 
-   public void setGpioElCW(GpioPinDigitalOutput gpioElCW) {
-      this.gpioElCW = gpioElCW;
-   }
-
    public GpioPinDigitalOutput getGpioElCCW() {
       return gpioElCCW;
    }
-
-   public void setGpioElCCW(GpioPinDigitalOutput gpioElCCW) {
-      this.gpioElCCW = gpioElCCW;
-   }
-
+  
    public GpioPinDigitalOutput getGpioAzCW() {
       return gpioAzCW;
    }
-
-   public void setGpioAzCW(GpioPinDigitalOutput gpioAzCW) {
-      this.gpioAzCW = gpioAzCW;
-   }
-
-   public GpioPinDigitalOutput getGpioAzCCW() {
+    public GpioPinDigitalOutput getGpioAzCCW() {
       return gpioAzCCW;
    }
 
-   public void setGpioAzCCW(GpioPinDigitalOutput gpioAzCCW) {
-      this.gpioAzCCW = gpioAzCCW;
+   public GpioPinDigitalOutput getFan() {
+      return gpioFan;
    }
 
-   
    
 }
