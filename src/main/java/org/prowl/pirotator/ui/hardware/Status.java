@@ -100,6 +100,10 @@ public class Status {
    public void pulseGPS(long time) {
       leds.pulseGPS(time);
    }
+   
+   public void setMoving(boolean moving) {
+      leds.setMoving(moving);
+   }
  
 
 }

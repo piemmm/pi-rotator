@@ -8,6 +8,7 @@ import org.prowl.pirotator.eventbus.ServerBus;
 import org.prowl.pirotator.eventbus.events.RotateRequest;
 import org.prowl.pirotator.hardware.Hardware;
 import org.prowl.pirotator.hardware.adc.MCP3008;
+import org.prowl.pirotator.hardware.leds.StatusLeds;
 import org.prowl.pirotator.utils.EWMAFilter;
 
 import com.google.common.eventbus.Subscribe;
@@ -164,6 +165,8 @@ public class Rotator {
             elCW.low();
          }
 
+         PiRotator.INSTANCE.getStatus().setMoving(azCCW.isHigh() || azCW.isHigh() || elCCW.isHigh() || elCW.isHigh());
+
       }
 
       public void stopRotating() {
@@ -171,6 +174,7 @@ public class Rotator {
          azCW.low();
          elCCW.low();
          elCW.low();
+         PiRotator.INSTANCE.getStatus().setMoving(false);
       }
 
    }

@@ -3,17 +3,6 @@
 <!-- PiRotator configuration test file -->
 <configuration>
 
-	<!-- Connectivity setup -->
-	<connectivity>
-
-		<!-- Our internal GPS connector -->
-		<connector>
-			<type>org.prowl.distribbs.node.connectivity.gps.GPS</type>
-			<udpBroadcastPort>4233</udpBroadcastPort>
-		</connector>
-
-	</connectivity>
-
 	<!-- Rotator setup -->
 	<rotator>
 
@@ -51,6 +40,7 @@
 	<!-- GPS controller -->
 	<gps>
 		<port>/dev/ttyS0</port>
+	    <udpBroadcastPort>9932</udpBroadcastPort>
 	</gps>
 
 	<ui>

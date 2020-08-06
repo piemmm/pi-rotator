@@ -56,6 +56,9 @@ public enum PiRotator {
          // Init hardware
          mcp3008 = new MCP3008();
 
+         // Init status objects
+         status = new Status();
+         
          // Thermal controller
          blower = new Blower(configuration.getConfig("thermalManagement"));
          blower.makeThermalMonitor();
@@ -67,8 +70,7 @@ public enum PiRotator {
          controllerManager = new ControllerManager(configuration.getConfig("controllers"));
          controllerManager.start();
 
-         // Init status objects
-         status = new Status();
+         
 
          // Init GPS device
          gps = new GPS(configuration.getConfig("gps"));
