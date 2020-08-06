@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<!-- PiRotator configuration test file -->
+<configuration>
+
+	<!-- Connectivity setup -->
+	<connectivity>
+
+		<!-- Our internal GPS connector -->
+		<connector>
+			<type>org.prowl.distribbs.node.connectivity.gps.GPS</type>
+			<udpBroadcastPort>4233</udpBroadcastPort>
+		</connector>
+
+	</connectivity>
+
+	<!-- Rotator setup -->
+	<rotator>
+		<azimuth>
+			<maxDegrees>450</maxDegrees>
+			<minDegrees>0</minDegrees>
+			<adcMaxReading>900</adcMaxReading>
+		</azimuth>
+
+		<elevation>
+			<maxDegrees>180</maxDegrees>
+			<minDegrees>0</minDegrees>
+			<adcMaxReading>900</adcMaxReading>
+		</elevation>
+
+		<parking>
+			<inactivityTimeoutSeconds>600</inactivityTimeoutSeconds>
+			<azimuth>310</azimuth>
+			<elevation>0</elevation>
+		</parking>
+
+	</rotator>
+
+	<ui>
+		<!-- Enable the ANSI terminal interface -->
+		<interface>
+			<type>org.prowl.pirotator.ui.ansi.ANSIServer</type>
+		</interface>
+	</ui>
+
+</configuration>
