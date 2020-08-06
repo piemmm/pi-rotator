@@ -124,9 +124,9 @@ public enum Hardware {
          gpioFan.setShutdownOptions(true, PinState.HIGH); // Fan always on if no thermal monitor running
          gpioFan.high();
 
-         // Fault redLED
+         // Fault redLED - should be on if app is ever not running
          gpioFault = gpio.provisionDigitalOutputPin(fault, PinState.LOW);
-         gpioFault.setShutdownOptions(true, PinState.LOW);
+         gpioFault.setShutdownOptions(false, PinState.HIGH);
 
          // Network led - active when an API sending rotate requests
          gpioNetwork = gpio.provisionDigitalOutputPin(network, PinState.LOW);
