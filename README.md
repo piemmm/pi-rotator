@@ -53,3 +53,21 @@ After that you should be good to go and can type:
 ````
 sudo service pirotator.service start
 ````
+
+
+
+To enable PPS + GPS + NTPd so you can have your own stratum one equivalent server:
+
+Install the relevant bits:
+
+````
+sudo apt install gpsd gpsd-clients python-gi-cairo pps-tools ntp
+````
+
+
+
+Add this to /boot/config.txt
+
+````
+dtoverlay=pps-gpio,gpiopin=4,capture_clear
+````

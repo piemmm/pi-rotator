@@ -1,6 +1,10 @@
 package org.prowl.pirotator.hardware.gps;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.LinkedList;
 
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.logging.Log;
@@ -17,6 +21,8 @@ import com.pi4j.io.serial.SerialFactory;
 import com.pi4j.io.serial.SerialPort;
 import com.pi4j.io.serial.StopBits;
 
+import net.sf.marineapi.nmea.event.SentenceEvent;
+import net.sf.marineapi.nmea.event.SentenceListener;
 import net.sf.marineapi.nmea.io.SentenceReader;
 import net.sf.marineapi.nmea.parser.SentenceFactory;
 import net.sf.marineapi.nmea.util.Date;
@@ -47,15 +53,32 @@ public class GPS {
    private static Time               currentTime;
    private static Date               currentDate;
 
+   private GPSWriter                 gpsWriterThread;
+   private BufferedOutputStream      gpsOutput;
+
    public GPS(HierarchicalConfiguration config) {
       this.config = config;
       sf = SentenceFactory.getInstance();
+
+      // Create fifo pipes so gpsd can play with the GPS and PPS signals.
+      // We will fix the output using a socat kludge so we can get data both ways
+      String input = "gps0";
+      String output = "gps0";
+      try {
+         createFifoPipe(input);
+         // createFifoPipe(output);
+      } catch (IOException e) {
+         LOG.error(e.getMessage(), e);
+      }
+
+      gpsWriterThread = new GPSWriter(output);
+      gpsWriterThread.start();
    }
 
    public void start() throws IOException {
 
       LOG.info("GPS Listener starting");
-      
+
       serial = SerialFactory.createInstance();
 
       // create serial config object
@@ -91,7 +114,6 @@ public class GPS {
       }
 
       SentenceReader reader = new SentenceReader(serial.getInputStream());
-
       HeadingProvider provider = new HeadingProvider(reader);
       provider.addListener(new HeadingListener() {
 
@@ -132,6 +154,32 @@ public class GPS {
 
       });
 
+      reader.addSentenceListener(new SentenceListener() {
+
+         @Override
+         public void sentenceRead(SentenceEvent event) {
+            // Forward the sentence to our fifo socket
+            gpsWriterThread.addData(event.getSentence().toString() + "\r\n");
+
+            pprovider.readingStarted(); // Bugfix: https://github.com/ktuukkan/marine-api/issues/129
+         }
+
+         @Override
+         public void readingStopped() {
+
+         }
+
+         @Override
+         public void readingStarted() {
+
+         }
+
+         @Override
+         public void readingPaused() {
+
+         }
+      });
+
       reader.start();
 
    }
@@ -142,7 +190,7 @@ public class GPS {
 
    /**
     * Returns the current known position, or null if no fix
-    * 
+    *
     * @return
     */
    public static Position getCurrentPosition() {
@@ -171,6 +219,80 @@ public class GPS {
 
    public String getName() {
       return getClass().getSimpleName();
+   }
+
+   private class GPSWriter extends Thread {
+
+      private LinkedList<String> toSend;
+      private Object             MONITOR = new Object();
+      private String             output;
+
+      public GPSWriter(String output) {
+         toSend = new LinkedList<>();
+         this.output = output;
+      }
+
+      public void addData(String data) {
+         if (toSend.size() < 2) {
+            LOG.info("Queueing GPS: " + data);
+            toSend.addLast(data);
+            synchronized (MONITOR) {
+               MONITOR.notifyAll();
+            }
+         }
+      }
+
+      @Override
+      public void run() {
+         LOG.info("GPS writer started");
+
+         while (true) {
+            try {
+               gpsOutput = new BufferedOutputStream(new FileOutputStream(output), 2000);
+
+               while (true) {
+                  try {
+                     synchronized (MONITOR) {
+                        MONITOR.wait(1000);
+                     }
+                  } catch (InterruptedException e) {
+                  }
+                  if (toSend.size() > 0) {
+                     String data = toSend.remove(0);
+
+                     gpsOutput.write(data.getBytes());
+                     gpsOutput.flush();
+                  }
+
+               }
+
+            } catch (Throwable e) {
+               LOG.error(e.getMessage(), e);
+               try {
+                  gpsOutput.close();
+               } catch (Throwable ex) {
+               }
+            }
+         }
+      }
+
+      public Object getMonitor() {
+         return MONITOR;
+      }
+
+   }
+
+   private File createFifoPipe(String name) throws IOException {
+      try {
+         // new File(name).delete();
+         Process process = null;
+         String[] command = new String[] { "mkfifo", name };
+         process = new ProcessBuilder(command).inheritIO().start();
+         process.waitFor();
+      } catch (InterruptedException e) {
+         throw new IOException(e);
+      }
+      return new File(name);
    }
 
 }

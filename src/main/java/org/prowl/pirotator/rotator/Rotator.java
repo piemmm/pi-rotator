@@ -68,6 +68,7 @@ public class Rotator {
       rotateThread.start();
 
       Thread thread = new Thread() {
+
          public void run() {
             while (true) {
                try {
@@ -75,14 +76,29 @@ public class Rotator {
                } catch (InterruptedException e) {
                }
 
+               // Get the ele and azi readings - a noisy potentiometer may generate odd
+               // readings, so we attempt to filter some of them through an ewma as well as
+               // value constraints later on
                float ele = (float) (maxElevation / maxADCValue) * PiRotator.INSTANCE.getMCP().readADCChannel(1);
                float azi = (float) (maxAzimuth / maxADCValue) * PiRotator.INSTANCE.getMCP().readADCChannel(0);
 
-               float eleF = eEmF.addPoint(ele);
-               float aziF = aEmF.addPoint(azi);
+               try {
+                  if (ele > 0 && ele < 450) {
+                     float eleF = eEmF.addPoint(ele);
+                     elevation = eleF;
+                  }
+               } catch (Throwable e) {
+                  LOG.warn(e.getMessage());
+               }
 
-               elevation = eleF;
-               azimuth = aziF;
+               try {
+                  if (azi > 0 && azi < 450) {
+                     float aziF = aEmF.addPoint(azi);
+                     azimuth = aziF;
+                  }
+               } catch (Throwable e) {
+                  LOG.warn(e.getMessage());
+               }
 
             }
          }
@@ -101,7 +117,7 @@ public class Rotator {
 
    /**
     * Get the current tracking sat name, or null for none.
-    * 
+    *
     * @return
     */
    public String getCurrentTracking() {
@@ -124,13 +140,14 @@ public class Rotator {
          super("Rotate thread");
       }
 
+      @Override
       public void run() {
 
          // Initial check if parking required.
          checkForParking();
          while (true) {
             try {
-                  Thread.sleep(150);
+               Thread.sleep(150);
             } catch (InterruptedException e) {
             }
 
